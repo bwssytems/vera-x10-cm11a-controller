@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<implementation>
+  <settings>
+    <protocol>raw</protocol>
+  </settings>
+
+  <functions>
+    local cm11Lib
+    
+    function startup(lul_device)
+      luup.log("X10 Startup: " .. lul_device, 50)
+      if (package.path:find ("/etc/cmh-ludl/?.lua;/etc/cmh-lu/?.lua", 1, true) == nil) then
+        package.path = package.path .. ";/etc/cmh-ludl/?.lua;/etc/cmh-lu/?.lua"
+      end
+      package.loaded.L_X10CM11a = nil
+      cm11Lib = require("L_X10CM11a")        
+      cm11Lib.startup(lul_device)
+    end
+    
+  </functions>
+  
+  <incoming>
+    <lua>cm11Lib.incoming(lul_data)</lua>
+  </incoming>
+  
+  <startup>startup</startup>
+  
+  <actionList>
+    <action>
+      <serviceId>urn:upnp-org:serviceId:SwitchPower1</serviceId>
+      <name>SetTarget</name>
+      <run>
+           cm11Lib.switch_set_target(lul_device, lul_settings)
+      </run>
+    </action>
+    
+    <action>
+      <serviceId>urn:upnp-org:serviceId:Dimming1</serviceId>
+      <name>SetLoadLevelTarget</name>
+      <run>
+           cm11Lib.set_dim_level(lul_device, lul_settings)
+      </run>
+    </action>
+    
+    <action>
+      <serviceId>urn:micasaverde-com:serviceId:SecuritySensor1</serviceId>
+      <name>SetArmed</name>
+      <run>
+        debug("Action::SetArmed:"..lul_settings.newArmedValue)
+        luup.variable_set(SECURITY_SID, "Armed", lul_settings.newArmedValue, lul_device)
+      </run>
+    </action>
+
+    <action>
+      <serviceId>urn:micasaverde-com:serviceId:HaDevice1</serviceId>
+      <name>ToggleState</name>
+      <run>
+        debug("Action::ToggleState:" .. lul_device)
+      </run>
+    </action>
+  </actionList>
+</implementation>

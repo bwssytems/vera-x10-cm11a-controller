@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <device>
+    <deviceType>urn:x10-com:device:controller:1</deviceType>
+    <friendlyName>CM11_Interface</friendlyName>
+    <manufacturer>X10</manufacturer>
+    <manufacturerURL>x10.com</manufacturerURL>
+    <modelDescription>X10 CM11 PL Controller</modelDescription>
+    <modelName>CM11A</modelName>
+    <modelNumber>CM11A</modelNumber>
+    <protocol>raw</protocol>
+    <handleChildren>1</handleChildren>
+    <implementationList>
+      <implementationFile>I_X10CM11a.xml</implementationFile>
+    </implementationList>
+  </device>
+</root>
