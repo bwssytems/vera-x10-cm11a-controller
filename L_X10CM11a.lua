@@ -7,10 +7,6 @@ local HADEVICE_SID  = "urn:micasaverde-com:serviceId:HaDevice1"
 local DIMMING_SID   = "urn:upnp-org:serviceId:Dimming1"
 local DEBUG_MODE = false
 
-local BINARY_SCHEMA  = "urn:schemas-micasaverde-com:device:BinaryLight:1"
-local DIMMING_SCHEMA = "urn:schemas-micasaverde-com:device:DimmableLight:1"
-local MOTION_SCHEMA  = "urn:schemas-micasaverde-com:device:MotionSensor:1"
-
 local controller_id
 local child_id_lookup_table = {}
 
@@ -784,13 +780,13 @@ function startup(lul_device)
 
      ------------------------------------------------------------
      -- APPLIANCE MODULES
-     add_children(lul_device, child_devices, 'A-', BINARY_SCHEMA,  "D_BinaryLight1.xml",  "Binary Light", app_ID)
+     add_children(lul_device, child_devices, 'A-', "",  "D_BinaryLight1.xml",  "Binary Light", app_ID)
      -- DIMMABLE LIGHTS
-     add_children(lul_device, child_devices, 'D-', DIMMING_SCHEMA, "D_DimmableLight1.xml", "Dimmable Light", dim_ID)
+     add_children(lul_device, child_devices, 'D-', "", "D_DimmableLight1.xml", "Dimmable Light", dim_ID)
      -- SOFTSTART DIMMABLE LIGHTS --
-     add_children(lul_device, child_devices, 'X-', DIMMING_SCHEMA, "D_DimmableLight1.xml", "Dimmable Light", xdim_ID)
+     add_children(lul_device, child_devices, 'X-', "", "D_DimmableLight1.xml", "Dimmable Light", xdim_ID)
      -- MOTION SENSORS --
-     add_children(lul_device, child_devices, 'M-', MOTION_SCHEMA,  "D_MotionSensor1.xml",  "Motion Sensor", motion_ID)
+     add_children(lul_device, child_devices, 'M-', "",  "D_MotionSensor1.xml",  "Motion Sensor", motion_ID)
 
      luup.chdev.sync(lul_device, child_devices)
 
