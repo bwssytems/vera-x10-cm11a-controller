@@ -201,6 +201,10 @@ local function addresscode_code(housecode, unitcode)
     local code_unit = devicecodes_X10[tonumber(unitcode)]
 
     local addresscode1 = '04' -- to identify single device
+    
+    if(unitcode == '') then
+      code_unit = 0
+    end
     local addresscode2 = string.format("%02X",(code_unit + code_house))
 
     local addresscode = addresscode1 .. addresscode2
@@ -262,6 +266,9 @@ local function functioncode_code(housecode, unitcode, functcode, functvalue)
 
     -- get unitcode
     local code_unit = devicecodes_X10[tonumber(unitcode)]
+    if(unitcode == '') then
+      code_unit = 0
+    end
 
     -- return variables (default)
     local functioncode2 = string.format("%02X",(code_house + code_function))
@@ -763,24 +770,36 @@ function startup(lul_device)
      ---------------
      -- Get a list of child devices
      local app_ID     = luup.variable_get(CM11_SID, "BinaryModules",      lul_device)
+     local housectl_ID = luup.variable_get(CM11_SID, "HouseCtlModules",   lul_device)
      local dim_ID     = luup.variable_get(CM11_SID, "DimmableModules",    lul_device)
      local xdim_ID    = luup.variable_get(CM11_SID, "SoftstartModules",   lul_device)
      local motion_ID  = luup.variable_get(CM11_SID, "MotionSensors",      lul_device)
 
      ---------------
      -- If all child devices are empty add a few examples
-     if ((app_ID == nil) and (dim_ID == nil) and (xdim_ID == nil) and (motion_ID == nil)) then
-          xdim_ID = "A1,A2"
-          motion_ID = "M1,M2"
+     if (app_ID == nil) then
           luup.variable_set(CM11_SID, "BinaryModules",      "",        lul_device)
+      end
+     if (housectl_ID == nil) then
+          luup.variable_set(CM11_SID, "HouseCtlModules",      "",        lul_device)
+      end
+     if (dim_ID == nil) then
           luup.variable_set(CM11_SID, "DimmableModules",    "",        lul_device)
+      end
+     if (xdim_ID == nil) then
+          xdim_ID = "A1,A2"
           luup.variable_set(CM11_SID, "SoftstartModules",   xdim_ID,   lul_device)
+      end
+      if (motion_ID == nil) then
+          motion_ID = "M1,M2"
           luup.variable_set(CM11_SID, "MotionSensors",      motion_ID, lul_device)
       end
 
      ------------------------------------------------------------
      -- APPLIANCE MODULES
      add_children(lul_device, child_devices, 'A-', "",  "D_BinaryLight1.xml",  "Binary Light", app_ID)
+     -- House Ctl MODULES
+     add_children(lul_device, child_devices, 'H-', "",  "D_BinaryLight1.xml",  "House Ctl Switch", housectl_ID)
      -- DIMMABLE LIGHTS
      add_children(lul_device, child_devices, 'D-', "", "D_DimmableLight1.xml", "Dimmable Light", dim_ID)
      -- SOFTSTART DIMMABLE LIGHTS --
@@ -1130,10 +1149,18 @@ function switch_set_target(lul_device, lul_settings)
     local lul_reverse = luup.variable_get(HADEVICE_SID, "ReverseOnOff", lul_device)
     local myTypeName = luup.devices[lul_device].description
     local myX10id = x10_id(luup.devices[lul_device].id)
+    local myDevicePrefix = x10_type(luup.devices[lul_device].id)
     local action_settings = {}
 
       if(lul_settings.newTargetValue == "1" or (lul_settings.newTargetValue == "0" and lul_reverse == "1")) then
         lul_command = 'On'
+      end
+
+      if(myDevicePrefix == "H-") then
+        lul_command = 'All Lights Off'
+        if(lul_settings.newTargetValue == "1" or (lul_settings.newTargetValue == "0" and lul_reverse == "1")) then
+          lul_command = 'All Lights On'
+        end
       end
 
       luup.variable_set(x10_type_name, "pendingNewState", lul_settings.newTargetValue, lul_device)
